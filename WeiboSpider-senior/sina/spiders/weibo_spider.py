@@ -29,16 +29,22 @@ class WeiboSpider(RedisSpider):
         information_item['crawl_time'] = int(time.time())
         selector = Selector(response)
         information_item['_id'] = re.findall('(\d+)/info', response.url)[0]
-        text1 = ";".join(selector.xpath('body/div[@class="c"]//text()').extract())  # 获取标签里的所有text()
+        #text1 = ";".join(selector.xpath('body/div[@class="c"]//text()').extract()[0])  # 获取标签里的所有text()
+        text1 = ";".join(selector.xpath('body//text()').extract())  # 获取标签里的所有text()
         nick_name = re.findall('昵称;?[：:]?(.*?);', text1)
         gender = re.findall('性别;?[：:]?(.*?);', text1)
         place = re.findall('地区;?[：:]?(.*?);', text1)
-        brief_introduction = re.findall('简介;[：:]?(.*?);', text1)
+        brief_introduction = re.findall('简介;?[：:]?(.*?);', text1)
         birthday = re.findall('生日;?[：:]?(.*?);', text1)
         sex_orientation = re.findall('性取向;?[：:]?(.*?);', text1)
         sentiment = re.findall('感情状况;?[：:]?(.*?);', text1)
         vip_level = re.findall('会员等级;?[：:]?(.*?);', text1)
         authentication = re.findall('认证;?[：:]?(.*?);', text1)
+        if '学习经历' in text1 and '工作经历' in text1:
+            edu = re.findall('学习经历;?[··]?(.*?);工作经历', text1)
+        else:
+            edu = re.findall('学习经历;?[··]?(.*?);其他信息', text1)
+        work = re.findall('工作经历;?[··]?(.*?);其他信息', text1)
         if nick_name and nick_name[0]:
             information_item["nick_name"] = nick_name[0].replace(u"\xa0", "")
         if gender and gender[0]:
@@ -63,6 +69,10 @@ class WeiboSpider(RedisSpider):
             information_item["vip_level"] = vip_level[0].replace(u"\xa0", "")
         if authentication and authentication[0]:
             information_item["authentication"] = authentication[0].replace(u"\xa0", "")
+        if edu and edu[0]:
+            information_item["edu"] = edu[0].replace(u"\xa0", "")
+        if work and work[0]:
+            information_item["work"] = work[0].replace(u"\xa0", "")
         request_meta = response.meta
         request_meta['item'] = information_item
         yield Request(self.base_url + '/u/{}'.format(information_item['_id']),

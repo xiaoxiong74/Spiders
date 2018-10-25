@@ -31,6 +31,8 @@ class InformationItem(Item):
     sentiment = Field()  # 感情状况
     vip_level = Field()  # 会员等级
     authentication = Field()  # 认证
+    edu = Field()   # 学校
+    work = Field()  # 工作经历
     person_url = Field()  # 首页链接
     crawl_time = Field()  # 抓取时间戳
 
