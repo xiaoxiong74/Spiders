@@ -10,20 +10,20 @@ class MongoDBPipeline(object):
         client = pymongo.MongoClient(LOCAL_MONGO_HOST, LOCAL_MONGO_PORT)
         db = client[DB_NAME]
         self.Information = db["Information"]
-        self.Tweets = db["Tweets"]
-        self.Comments = db["Comments"]
+        #self.Tweets = db["Tweets"]
+        #self.Comments = db["Comments"]
         self.Relationships = db["Relationships"]
 
     def process_item(self, item, spider):
         """ 判断item的类型，并作相应的处理，再入数据库 """
         if isinstance(item, RelationshipsItem):
             self.insert_item(self.Relationships, item)
-        elif isinstance(item, TweetsItem):
-            self.insert_item(self.Tweets, item)
+        #elif isinstance(item, TweetsItem):
+            #self.insert_item(self.Tweets, item)
         elif isinstance(item, InformationItem):
             self.insert_item(self.Information, item)
-        elif isinstance(item, CommentItem):
-            self.insert_item(self.Comments, item)
+        #elif isinstance(item, CommentItem):
+            #self.insert_item(self.Comments, item)
         return item
 
     @staticmethod
