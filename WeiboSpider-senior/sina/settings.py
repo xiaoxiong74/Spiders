@@ -15,7 +15,7 @@ DEFAULT_REQUEST_HEADERS = {
 
 CONCURRENT_REQUESTS = 16
 
-DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 1
 
 DOWNLOADER_MIDDLEWARES = {
     'weibo.middlewares.UserAgentMiddleware': None,
@@ -56,3 +56,6 @@ BLOOMFILTER_BIT = 31
 
 # Persist
 SCHEDULER_PERSIST = True
+
+DEPTH_PRIORITY = 1  # 广度优先
+SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.PriorityQueue"
