@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+import datetime
 
 BOT_NAME = 'sina'
 
 SPIDER_MODULES = ['sina.spiders']
 NEWSPIDER_MODULE = 'sina.spiders'
+
+to_day = datetime.datetime.now()
+log_file_path = "log/scrapy_{}_{}_{}.log".format(to_day.year,to_day.month,to_day.day)
+
+LOG_LEVEL = "INFO"
+LOG_FILE = log_file_path
+
 
 ROBOTSTXT_OBEY = False
 
@@ -15,7 +23,7 @@ DEFAULT_REQUEST_HEADERS = {
 
 CONCURRENT_REQUESTS = 16
 
-DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 0.5
 
 DOWNLOADER_MIDDLEWARES = {
     'weibo.middlewares.UserAgentMiddleware': None,
