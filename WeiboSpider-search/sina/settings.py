@@ -8,14 +8,14 @@ NEWSPIDER_MODULE = 'sina.spiders'
 ROBOTSTXT_OBEY = False
 
 DEFAULT_REQUEST_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:61.0) Gecko/20100101 Firefox/61.0',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
 }
 
 # CONCURRENT_REQUESTS 和 DOWNLOAD_DELAY 根据账号池大小调整 目前的参数是账号池大小为200
 
 CONCURRENT_REQUESTS = 16
 
-DOWNLOAD_DELAY = 0.1
+DOWNLOAD_DELAY = 1
 
 DOWNLOADER_MIDDLEWARES = {
     'weibo.middlewares.UserAgentMiddleware': None,
@@ -30,14 +30,14 @@ ITEM_PIPELINES = {
 }
 
 # MongoDb 配置
-
-LOCAL_MONGO_HOST = '127.0.0.1'
+LOCAL_MONGO_HOST = '192.168.110.51'
 LOCAL_MONGO_PORT = 27017
-DB_NAME = 'Sina'
+DB_NAME = 'weibotest'
 
 # Redis 配置
-LOCAL_REDIS_HOST = '127.0.0.1'
+LOCAL_REDIS_HOST = '192.168.110.52'
 LOCAL_REDIS_PORT = 6379
+
 
 # Ensure use this Scheduler
 SCHEDULER = "scrapy_redis_bloomfilter.scheduler.Scheduler"
@@ -56,3 +56,6 @@ BLOOMFILTER_BIT = 31
 
 # Persist
 SCHEDULER_PERSIST = True
+
+DEPTH_PRIORITY = 1  # 广度优先
+SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.PriorityQueue"
