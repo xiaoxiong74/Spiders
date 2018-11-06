@@ -7,19 +7,19 @@ from scrapy.selector import Selector
 from scrapy.http import Request
 from scrapy.utils.project import get_project_settings
 from scrapy_redis.spiders import RedisSpider
-from sina.items import TweetsItem, InformationItem
+from sina.items import TweetsItem, InformationItem,CommentItem,RepostItem
 from sina.spiders.utils import time_fix
 import time
 
 
 class WeiboSpider(RedisSpider):
-    name = "weibo_spider"
+    name = "weibo_spider_gongjiao"
     base_url = "https://weibo.cn"
-    redis_key = "weibo_spider:start_urls"
+    redis_key = "weibo_spider_gongjiao:start_urls"
 
     custom_settings = {
         'CONCURRENT_REQUESTS': 16,
-        "DOWNLOAD_DELAY": 0.1,
+        "DOWNLOAD_DELAY": 1,
     }
 
     def parse(self, response):
@@ -73,7 +73,15 @@ class WeiboSpider(RedisSpider):
                     yield tweet_item
 
                 yield Request(url="https://weibo.cn/{}/info".format(tweet_item['user_id']),
-                              callback=self.parse_information, priority=2)
+                              callback=self.parse_information, priority=1)
+                # 抓取该微博的评论信息
+                comment_url = self.base_url + '/comment/' + tweet_item['weibo_url'].split('/')[-1] + '?page=1'
+                yield Request(url=comment_url, callback=self.parse_comment, meta={'weibo_url': tweet_item['weibo_url']})
+
+                # 抓取该微博的转发信息
+                repost_url = self.base_url + '/repost/' + tweet_item['weibo_url'].split('/')[-1] + '?page=1'
+                yield Request(url=repost_url, callback=self.parse_repost, meta={'weibo_url': tweet_item['weibo_url']})
+
 
             except Exception as e:
                 self.logger.error(e)
@@ -98,12 +106,17 @@ class WeiboSpider(RedisSpider):
         nick_name = re.findall('昵称;?[：:]?(.*?);', text1)
         gender = re.findall('性别;?[：:]?(.*?);', text1)
         place = re.findall('地区;?[：:]?(.*?);', text1)
-        brief_introduction = re.findall('简介;[：:]?(.*?);', text1)
+        brief_introduction = re.findall('简介;?[：:]?(.*?);', text1)
         birthday = re.findall('生日;?[：:]?(.*?);', text1)
         sex_orientation = re.findall('性取向;?[：:]?(.*?);', text1)
         sentiment = re.findall('感情状况;?[：:]?(.*?);', text1)
         vip_level = re.findall('会员等级;?[：:]?(.*?);', text1)
         authentication = re.findall('认证;?[：:]?(.*?);', text1)
+        if '学习经历' in text1 and '工作经历' in text1:
+            edu = re.findall('学习经历;?[··]?(.*?);工作经历', text1)
+        else:
+            edu = re.findall('学习经历;?[··]?(.*?);其他信息', text1)
+        work = re.findall('工作经历;?[··]?(.*?);其他信息', text1)
         if nick_name and nick_name[0]:
             information_item["nick_name"] = nick_name[0].replace(u"\xa0", "")
         if gender and gender[0]:
@@ -128,6 +141,10 @@ class WeiboSpider(RedisSpider):
             information_item["vip_level"] = vip_level[0].replace(u"\xa0", "")
         if authentication and authentication[0]:
             information_item["authentication"] = authentication[0].replace(u"\xa0", "")
+        if edu and edu[0]:
+            information_item["edu"] = edu[0].replace(u"\xa0", "")
+        if work and work[0]:
+            information_item["work"] = work[0].replace(u"\xa0", "")
         request_meta = response.meta
         request_meta['item'] = information_item
         yield Request(self.base_url + '/u/{}'.format(information_item['_id']),
@@ -148,8 +165,68 @@ class WeiboSpider(RedisSpider):
             information_item['fans_num'] = int(fans_num[0])
         yield information_item
 
+    def parse_comment(self, response):
+       # 如果是第1页，一次性获取后面的所有页
+        if response.url.endswith('page=1'):
+            all_page = re.search(r'/>&nbsp;1/(\d+)页</div>', response.text)
+            if all_page:
+                all_page = all_page.group(1)
+                all_page = int(all_page)
+                for page_num in range(2, all_page + 1):
+                    page_url = response.url.replace('page=1', 'page={}'.format(page_num))
+                    yield Request(page_url, self.parse_comment, dont_filter=True, meta=response.meta)
+        selector = Selector(response)
+        comment_nodes = selector.xpath('//div[@class="c" and contains(@id,"C_")]')
+        for comment_node in comment_nodes:
+            comment_user_url = comment_node.xpath('.//a[contains(@href,"/u/")]/@href').extract_first()
+            if not comment_user_url:
+                continue
+            comment_item = CommentItem()
+            comment_item['crawl_time'] = int(time.time())
+            comment_item['weibo_url'] = response.meta['weibo_url']
+            comment_item['comment_user_id'] = re.search(r'/u/(\d+)', comment_user_url).group(1)
+            comment_item['content'] = comment_node.xpath('.//span[@class="ctt"]').xpath('string(.)').extract_first()
+            comment_item['_id'] = comment_node.xpath('./@id').extract_first()
+            created_at = comment_node.xpath('.//span[@class="ct"]/text()').extract_first()
+            comment_item['created_at'] = time_fix(created_at.split('\xa0')[0])
+            yield Request(url="https://weibo.cn/{}/info".format(comment_item['comment_user_id']),
+                          callback=self.parse_information, priority=1)
+            yield comment_item
+
+
+    def parse_repost(self, response):
+       # 如果是第1页，一次性获取后面的所有页
+        if response.url.endswith('page=1'):
+            all_page = re.search(r'/>&nbsp;1/(\d+)页</div>', response.text)
+            if all_page:
+                all_page = all_page.group(1)
+                all_page = int(all_page)
+                for page_num in range(2, all_page + 1):
+                    page_url = response.url.replace('page=1', 'page={}'.format(page_num))
+                    yield Request(page_url, self.parse_repost, dont_filter=True, meta=response.meta)
+        selector = Selector(response)
+        repost_nodes = selector.xpath('//div[@class="c"]')
+        for repost_node in repost_nodes:
+            repost_user_url = repost_node.xpath('.//a[contains(@href,"/u/")]/@href').extract_first()
+            if not repost_user_url:
+                continue
+            repost_item = RepostItem()
+            repost_item['crawl_time'] = int(time.time())
+            repost_item['weibo_url'] = response.meta['weibo_url']
+            repost_item['repost_user_id'] = re.search(r'/u/(\d+)', repost_user_url).group(1)
+
+            created_at = repost_node.xpath('.//span[@class="ct"]/text()').extract_first()
+            if created_at is not None:
+                repost_item['created_at'] = time_fix(created_at.split('\xa0')[1])
+                repost_item['device'] = created_at.split('\xa0')[2]
+            repost_item['weibo_user_id'] = re.search(r'.*?com/((\d+))/',repost_item['weibo_url']).group(1)
+            repost_item['_id'] = repost_item['repost_user_id'] +'-'+ repost_item['weibo_user_id']
+            yield Request(url="https://weibo.cn/{}/info".format(repost_item['repost_user_id']),
+                          callback=self.parse_information, priority=1)
+            yield repost_item
+
 
 if __name__ == "__main__":
     process = CrawlerProcess(get_project_settings())
-    process.crawl('weibo_spider')
+    process.crawl('weibo_spider_gongjiao')
     process.start()
