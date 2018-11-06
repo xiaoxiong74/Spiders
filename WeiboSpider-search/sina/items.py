@@ -31,6 +31,8 @@ class InformationItem(Item):
     sentiment = Field()  # 感情状况
     vip_level = Field()  # 会员等级
     authentication = Field()  # 认证
+    edu = Field()   # 学校
+    work = Field()  # 工作经历
     person_url = Field()  # 首页链接
     crawl_time = Field()  # 抓取时间戳
 
@@ -53,3 +55,16 @@ class CommentItem(Item):
     weibo_url = Field()  # 评论的微博的url
     created_at = Field()  # 评论发表时间
     crawl_time = Field()  # 抓取时间戳
+
+
+class RepostItem(Item):
+    """
+    微博转发信息
+    """
+    _id = Field()
+    repost_user_id = Field()  # 转发的用户的id
+    weibo_url = Field()  # 转发的微博的url
+    created_at = Field()  # 转发时间
+    crawl_time = Field()  # 抓取时间戳
+    device = Field()      #转发设备
+    weibo_user_id = Field()  #微博用户ID
