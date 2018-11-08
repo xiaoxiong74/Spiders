@@ -1,0 +1,35 @@
+2018-11-08 11:34:32 [scrapy.utils.log] INFO: Scrapy 1.5.1 started (bot: sina)
+2018-11-08 11:34:32 [scrapy.utils.log] INFO: Versions: lxml 4.2.5.0, libxml2 2.9.5, cssselect 1.0.3, parsel 1.5.0, w3lib 1.19.0, Twisted 18.7.0, Python 3.6.5 |Anaconda, Inc.| (default, Mar 29 2018, 13:32:41) [MSC v.1900 64 bit (AMD64)], pyOpenSSL 18.0.0 (OpenSSL 1.0.2o  27 Mar 2018), cryptography 2.2.2, Platform Windows-7-6.1.7600-SP0
+2018-11-08 11:34:32 [scrapy.crawler] INFO: Overridden settings: {'BOT_NAME': 'sina', 'DEPTH_PRIORITY': 1, 'DOWNLOAD_DELAY': 1, 'DUPEFILTER_CLASS': 'scrapy_redis_bloomfilter.dupefilter.RFPDupeFilter', 'LOG_FILE': 'log/scrapy_2018_11_8.log', 'LOG_LEVEL': 'INFO', 'NEWSPIDER_MODULE': 'sina.spiders', 'SCHEDULER': 'scrapy_redis_bloomfilter.scheduler.Scheduler', 'SPIDER_MODULES': ['sina.spiders']}
+2018-11-08 11:34:32 [scrapy.middleware] INFO: Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.logstats.LogStats']
+2018-11-08 11:34:32 [weibo_spider_gongjiao] INFO: Reading start URLs from redis key 'weibo_spider_gongjiao:start_urls' (batch size: 16, encoding: utf-8
+2018-11-08 11:34:32 [scrapy.middleware] INFO: Enabled downloader middlewares:
+['sina.middlewares.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'sina.middlewares.CookieMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2018-11-08 11:34:32 [scrapy.middleware] INFO: Enabled spider middlewares:
+['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2018-11-08 11:34:32 [scrapy.middleware] INFO: Enabled item pipelines:
+['sina.pipelines.MongoDBPipeline']
+2018-11-08 11:34:32 [scrapy.core.engine] INFO: Spider opened
+2018-11-08 11:34:32 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2018-11-08 11:35:32 [scrapy.extensions.logstats] INFO: Crawled 33 pages (at 33 pages/min), scraped 12 items (at 12 items/min)
+2018-11-08 11:36:32 [scrapy.extensions.logstats] INFO: Crawled 82 pages (at 49 pages/min), scraped 36 items (at 24 items/min)
+2018-11-08 11:36:55 [scrapy.crawler] INFO: Received SIGINT, shutting down gracefully. Send again to force 
+2018-11-08 11:36:55 [scrapy.core.engine] INFO: Closing spider (shutdown)
+2018-11-08 11:36:57 [scrapy.crawler] INFO: Received SIGINT twice, forcing unclean shutdown
