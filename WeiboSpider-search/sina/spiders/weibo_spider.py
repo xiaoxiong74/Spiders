@@ -72,6 +72,7 @@ class WeiboSpider(RedisSpider):
                     tweet_item['content'] = all_content
                     yield tweet_item
 
+                #抓取个人信息
                 yield Request(url="https://weibo.cn/{}/info".format(tweet_item['user_id']),
                               callback=self.parse_information, priority=1)
                 # 抓取该微博的评论信息
@@ -95,7 +96,7 @@ class WeiboSpider(RedisSpider):
         tweet_item['content'] = all_content
         yield tweet_item
 
-    # 默认初始解析函数
+    #默认初始解析函数
     def parse_information(self, response):
         """ 抓取个人信息 """
         information_item = InformationItem()
@@ -186,6 +187,11 @@ class WeiboSpider(RedisSpider):
             comment_item['weibo_url'] = response.meta['weibo_url']
             comment_item['comment_user_id'] = re.search(r'/u/(\d+)', comment_user_url).group(1)
             comment_item['content'] = comment_node.xpath('.//span[@class="ctt"]').xpath('string(.)').extract_first()
+            attitude_text = comment_node.xpath('.//span[@class="cc"]/a[contains(@href,"/attitude/")]//text()').extract_first()
+            #评论点赞
+            attitude = re.findall('赞\[(\d+)\]', attitude_text)
+            if attitude:
+                comment_item['attitude'] = int(attitude[0])
             comment_item['_id'] = comment_node.xpath('./@id').extract_first()
             created_at = comment_node.xpath('.//span[@class="ct"]/text()').extract_first()
             comment_item['created_at'] = time_fix(created_at.split('\xa0')[0])
@@ -214,10 +220,21 @@ class WeiboSpider(RedisSpider):
             repost_item['crawl_time'] = int(time.time())
             repost_item['weibo_url'] = response.meta['weibo_url']
             repost_item['repost_user_id'] = re.search(r'/u/(\d+)', repost_user_url).group(1)
-
+            attitude_text = repost_node.xpath('.//span[@class="cc"]/a[contains(@href,"/attitude/")]//text()').extract_first()
+            #转发点赞
+            attitude = re.findall('赞\[(\d+)\]', str(attitude_text))
+            if attitude is not None and len(attitude)>=1:
+                repost_item['attitude'] = int(attitude[0])
+            #转发评论
+            text1 = ";".join(repost_node.xpath('.//text()').extract())
+            comment = re.findall(';:(.*?);', text1)
+            if comment and comment[0]:
+                repost_item["comment"] = comment[0].replace(u"\xa0", "")
             created_at = repost_node.xpath('.//span[@class="ct"]/text()').extract_first()
             if created_at is not None:
+                #转发时间
                 repost_item['created_at'] = time_fix(created_at.split('\xa0')[1])
+                #转发设备
                 repost_item['device'] = created_at.split('\xa0')[2]
             repost_item['weibo_user_id'] = re.search(r'.*?com/((\d+))/',repost_item['weibo_url']).group(1)
             repost_item['_id'] = repost_item['repost_user_id'] +'-'+ repost_item['weibo_user_id']
