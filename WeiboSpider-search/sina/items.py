@@ -55,6 +55,7 @@ class CommentItem(Item):
     weibo_url = Field()  # 评论的微博的url
     created_at = Field()  # 评论发表时间
     crawl_time = Field()  # 抓取时间戳
+    attitude = Field()  # 评论点赞数
 
 
 class RepostItem(Item):
@@ -67,4 +68,6 @@ class RepostItem(Item):
     created_at = Field()  # 转发时间
     crawl_time = Field()  # 抓取时间戳
     device = Field()      #转发设备
+    attitude = Field()    #转发点赞
+    comment = Field()      #转发评论
     weibo_user_id = Field()  #微博用户ID
