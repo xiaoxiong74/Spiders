@@ -59,12 +59,13 @@ scrapy crawl weibo_spider
 ```
 可以打开新的终端，开多个进程。
 
-运行截图:
-
-![](./images/redis.png)
+因已设置日志文件，将setting的日志存储部分部分注销即可在终端显示爬取结果，即注销以下部分
+# log_file_path = "log/scrapy_{}_{}_{}.log".format(to_day.year,to_day.month,to_day.day)
+# LOG_LEVEL = "INFO"
+# LOG_FILE = log_file_path
 
 导入pycharm后，也可以直接执行`sina/spider/weibo_spider.py`
 
-该爬虫是示例爬虫，将爬取的是2018-10-28 到 2018-11-06 关键词为转基因的微博数据和用户数据。
+该爬虫是示例爬虫，将爬取的是2018-10-28 到 2018-11-06 关键词为重庆公交坠江微博数据和用户数据。
 
 可以根据你的实际需求改写示例爬虫。
