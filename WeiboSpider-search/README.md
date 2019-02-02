@@ -4,7 +4,7 @@ This is a sina weibo spider built by scrapy
 
 
 ## 项目说明
-本项目根据https://github.com/nghuyong/WeiboSpider/tree/search 做了部分修改，添加了一些新的字段以便做舆情分析
+本项目根据https://github.com/nghuyong/WeiboSpider/tree/search 做了部分修改，添加了一些新的字段与模块以便做sina舆情分析
 
 该项目爬取的数据字段说明，请移步:[数据字段说明与示例](./data_stracture.md)
 
