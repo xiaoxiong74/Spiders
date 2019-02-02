@@ -4,14 +4,14 @@ This is a sina weibo spider built by scrapy
 
 
 ## 项目说明
-本项目根据https://github.com/nghuyong/WeiboSpider/tree/search 做了部分修改
+本项目根据https://github.com/nghuyong/WeiboSpider/tree/search 做了部分修改，添加了一些新的字段以便做舆情分析
 
 该项目爬取的数据字段说明，请移步:[数据字段说明与示例](./data_stracture.md)
 
 ### 克隆本项目 && 安装依赖
 本项目Python版本为Python3.6
 ```bash
-git clone git@github.com:nghuyong/WeiboSpider.git
+下载本项目
 cd WeiboSpider
 pip install -r requirements.txt
 ```
